@@ -10,6 +10,12 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.SourceDataLine;
+import java.nio.ByteBuffer;
+
 public class BitMap {
 
 	class TestCanvas extends JPanel {
@@ -47,7 +53,27 @@ public class BitMap {
 		return arr;
 	}
 
+	public void play() throws Exception {
+		AudioFormat format = new AudioFormat(40000, 16, 1, true, true);
+		DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+		SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+		line.open(format);
+		line.start();
+		ByteBuffer buffer = ByteBuffer.allocate(384);
+		buffer.clear();
+		int arr[]=getRandomArray();
+		for (int i = 0; i < 384/2; i++) {
+			buffer.putShort((short) (arr[i] * Short.MAX_VALUE));
+		}
+		line.write(buffer.array(), 0, buffer.position());
+		Thread.sleep(384);
+		line.drain();
+		line.close();
+	}
+
 	public BitMap() throws Exception {
+
+		//Task 1
 		for (int i = 0; i < 128; i++) {
 			for (int j = 0; j < 3; j++) {
 				int arr[] = getRandomArray();
@@ -65,6 +91,10 @@ public class BitMap {
 		frame.setBounds(0, 0, 400, 400);
 		frame.getContentPane().add(new TestCanvas());
 		frame.setVisible(true);
+		
+		//Task 2
+		for(int i=0;i<10;i++) play();
+
 	}
 
 	public static void main(String[] args) throws Exception {
